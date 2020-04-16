@@ -16,5 +16,6 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.frame_main_fragmentContainer, new FileListFragment());
         transaction.commit();
+
     }
 }
