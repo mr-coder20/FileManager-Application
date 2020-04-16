@@ -33,6 +33,7 @@
             app:srcCompat="@drawable/ic_more_vertical_black_24dp" />
 
         <TextView
+            android:id="@+id/tv_file_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
