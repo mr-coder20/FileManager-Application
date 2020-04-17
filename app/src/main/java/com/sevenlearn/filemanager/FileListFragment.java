@@ -37,9 +37,12 @@ public class FileListFragment extends Fragment implements FileAdapter.FileItemEv
         recyclerView = view.findViewById(R.id.rv_files);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
         File currentFolder = new File(path);
-        File[] files = currentFolder.listFiles();
-        fileAdapter = new FileAdapter(Arrays.asList(files), this);
-        recyclerView.setAdapter(fileAdapter);
+        if (StorageHelper.isExternalStorageReadable()){
+            File[] files = currentFolder.listFiles();
+            fileAdapter = new FileAdapter(Arrays.asList(files), this);
+            recyclerView.setAdapter(fileAdapter);
+        }
+
         TextView pathTv = view.findViewById(R.id.tv_files_path);
 
         pathTv.setText(currentFolder.getName().equalsIgnoreCase("files") ? "External Storage" : currentFolder.getName());
@@ -62,30 +65,38 @@ public class FileListFragment extends Fragment implements FileAdapter.FileItemEv
 
     @Override
     public void onDeleteFileItemClick(File file) {
-        if (file.delete()) {
-            fileAdapter.deleteFile(file);
+        if (StorageHelper.isExternalStorageWritable()){
+            if (file.delete()) {
+                fileAdapter.deleteFile(file);
+            }
         }
+
     }
 
     @Override
     public void onCopyFileItemClick(File file) {
-        try {
-            copy(file, getDestinationFile(file.getName()));
-            Toast.makeText(getContext(), "File is copied", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (StorageHelper.isExternalStorageWritable()) {
+            try {
+                copy(file, getDestinationFile(file.getName()));
+                Toast.makeText(getContext(), "File is copied", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void onMoveFileItemClick(File file) {
-        try {
-            copy(file, getDestinationFile(file.getName()));
-            onDeleteFileItemClick(file);
-            Toast.makeText(getContext(), "File is copied", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (StorageHelper.isExternalStorageWritable()) {
+            try {
+                copy(file, getDestinationFile(file.getName()));
+                onDeleteFileItemClick(file);
+                Toast.makeText(getContext(), "File is copied", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
     private File getDestinationFile(String fileName) {
@@ -93,13 +104,16 @@ public class FileListFragment extends Fragment implements FileAdapter.FileItemEv
     }
 
     public void createNewFolder(String folderName) {
-        File newFolder = new File(path + File.separator + folderName);
-        if (!newFolder.exists()) {
-            if (newFolder.mkdir()) {
-                fileAdapter.addFile(newFolder);
-                recyclerView.smoothScrollToPosition(0);
+        if (StorageHelper.isExternalStorageWritable()) {
+            File newFolder = new File(path + File.separator + folderName);
+            if (!newFolder.exists()) {
+                if (newFolder.mkdir()) {
+                    fileAdapter.addFile(newFolder);
+                    recyclerView.smoothScrollToPosition(0);
+                }
             }
         }
+
     }
 
     private void copy(File source, File destination) throws IOException {
