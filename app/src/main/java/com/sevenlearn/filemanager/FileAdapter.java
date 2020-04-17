@@ -1,12 +1,14 @@
 package com.sevenlearn.filemanager;
 
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
@@ -43,11 +45,13 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
     public class FileViewHolder extends RecyclerView.ViewHolder {
         private TextView fileNameTv;
         private ImageView fileIconIv;
+        private View moreIv;
 
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
             fileNameTv = itemView.findViewById(R.id.tv_file_name);
             fileIconIv = itemView.findViewById(R.id.iv_file);
+            moreIv = itemView.findViewById(R.id.iv_file_more);
         }
 
         public void bindFile(final File file) {
@@ -63,11 +67,51 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                     fileItemEventListener.onFileItemClick(file);
                 }
             });
+
+            moreIv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
+                    popupMenu.getMenuInflater().inflate(R.menu.menu_file_item, popupMenu.getMenu());
+                    popupMenu.show();
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.menuItem_delete:
+                                    fileItemEventListener.onDeleteFileItemClick(file);
+                                    break;
+                                case R.id.menuItem_copy:
+                                    fileItemEventListener.onCopyFileItemClick(file);
+                                    break;
+                                case R.id.menuItem_move:
+                                    fileItemEventListener.onMoveFileItemClick(file);
+                                    break;
+                            }
+                            return true;
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    public void deleteFile(File file) {
+        int index = files.indexOf(file);
+        if (index > -1) {
+            files.remove(index);
+            notifyItemRemoved(index);
         }
     }
 
     public interface FileItemEventListener {
         void onFileItemClick(File file);
+
+        void onDeleteFileItemClick(File file);
+
+        void onCopyFileItemClick(File file);
+
+        void onMoveFileItemClick(File file);
     }
 
     public void addFile(File file) {
