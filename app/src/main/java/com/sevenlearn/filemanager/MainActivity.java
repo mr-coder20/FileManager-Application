@@ -11,6 +11,8 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 
+import com.google.android.material.button.MaterialButtonToggleGroup;
+
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity implements AddNewFolderDialog.AddNewFolderCallback {
@@ -51,6 +53,24 @@ public class MainActivity extends AppCompatActivity implements AddNewFolderDialo
             @Override
             public void afterTextChanged(Editable s) {
 
+            }
+        });
+
+        MaterialButtonToggleGroup toggleGroup = findViewById(R.id.toggleGroup_main);
+        toggleGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
+            @Override
+            public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
+                if (checkedId == R.id.btn_main_list && isChecked) {
+                    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame_main_fragmentContainer);
+                    if (fragment instanceof FileListFragment) {
+                        ((FileListFragment) fragment).setViewType(ViewType.ROW);
+                    }
+                } else if (checkedId == R.id.btn_main_grid && isChecked) {
+                    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame_main_fragmentContainer);
+                    if (fragment instanceof FileListFragment) {
+                        ((FileListFragment) fragment).setViewType(ViewType.GRID);
+                    }
+                }
             }
         });
 
