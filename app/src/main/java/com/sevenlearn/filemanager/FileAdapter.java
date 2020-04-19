@@ -16,11 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder> {
-    List<File> files;
+    private List<File> files;
+    private List<File> filteredFiles;
     private FileItemEventListener fileItemEventListener;
 
     public FileAdapter(List<File> files, FileItemEventListener fileItemEventListener) {
         this.files = new ArrayList<>(files);
+        this.filteredFiles = this.files;
         this.fileItemEventListener = fileItemEventListener;
     }
 
@@ -34,12 +36,12 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
-        holder.bindFile(files.get(position));
+        holder.bindFile(filteredFiles.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return files.size();
+        return filteredFiles.size();
     }
 
     public class FileViewHolder extends RecyclerView.ViewHolder {
@@ -117,5 +119,23 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
     public void addFile(File file) {
         files.add(0, file);
         notifyItemInserted(0);
+    }
+
+    public void search(String query) {
+          if (query.length()>0){
+              List<File> result=new ArrayList<>();
+              for (File file :
+                      this.files) {
+                  if (file.getName().toLowerCase().contains(query.toLowerCase())){
+                      result.add(file);
+                  }
+              }
+
+              this.filteredFiles=result;
+              notifyDataSetChanged();
+          }else {
+              this.filteredFiles=this.files;
+              notifyDataSetChanged();
+          }
     }
 }

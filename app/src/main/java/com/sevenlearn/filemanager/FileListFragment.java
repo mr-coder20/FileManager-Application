@@ -129,4 +129,10 @@ public class FileListFragment extends Fragment implements FileAdapter.FileItemEv
         fileOutputStream.close();
     }
 
+
+    public void search(String query){
+        if (fileAdapter!=null)
+            fileAdapter.search(query);
+    }
+
 }
